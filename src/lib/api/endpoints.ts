@@ -16,6 +16,7 @@ export const API_ENDPOINTS = {
   deliveryAuthMe: `${API_V1_PREFIX}/delivery/auth/me`,
   deliveryAuthLogout: `${API_V1_PREFIX}/delivery/auth/logout`,
   deliveryOrders: `${API_V1_PREFIX}/delivery/orders`,
+  deliveryPerformanceSummary: `${API_V1_PREFIX}/delivery/performance/summary`,
 } as const satisfies Record<string, string>;
 
 export function deliveryOrderPath(orderId: string): string {

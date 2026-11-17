@@ -17,11 +17,39 @@ import { revalidateDeliveryPartnerSession } from "../services/delivery-partner-l
 type AuthContextValue = {
   partner: DeliveryPartnerProfile | null;
   isAuthReady: boolean;
+  sessionError: string | null;
   refreshSession: () => Promise<void>;
   setPartner: (partner: DeliveryPartnerProfile | null) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+const SESSION_PROBE_ATTEMPTS = 3;
+const SESSION_PROBE_DELAY_MS = 400;
+
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+async function probeDeliverySession() {
+  let last: Awaited<ReturnType<typeof revalidateDeliveryPartnerSession>> = {
+    kind: "unavailable",
+  };
+
+  for (let attempt = 0; attempt < SESSION_PROBE_ATTEMPTS; attempt += 1) {
+    last = await revalidateDeliveryPartnerSession();
+    if (last.kind !== "unavailable") {
+      return last;
+    }
+    if (attempt < SESSION_PROBE_ATTEMPTS - 1) {
+      await wait(SESSION_PROBE_DELAY_MS * (attempt + 1));
+    }
+  }
+
+  return last;
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { setSession, clearSession, setHydrated } = useAuthStore();
@@ -29,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     null,
   );
   const [isAuthReady, setIsAuthReady] = useState(false);
+  const [sessionError, setSessionError] = useState<string | null>(null);
 
   const applyPartner = useCallback(
     (next: DeliveryPartnerProfile | null) => {
@@ -49,18 +78,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const refreshSession = useCallback(async () => {
-    const session = await revalidateDeliveryPartnerSession();
-    applyPartner(session?.partner ?? null);
+    const result = await probeDeliverySession();
+    if (result.kind === "authenticated") {
+      setSessionError(null);
+      applyPartner(result.session.partner);
+      return;
+    }
+    if (result.kind === "unauthenticated") {
+      setSessionError(null);
+      applyPartner(null);
+      return;
+    }
+    setSessionError("Could not verify your session. Check your connection and try again.");
   }, [applyPartner]);
 
   useEffect(() => {
     let active = true;
     void (async () => {
-      const session = await revalidateDeliveryPartnerSession();
+      const result = await probeDeliverySession();
       if (!active) {
         return;
       }
-      applyPartner(session?.partner ?? null);
+
+      if (result.kind === "authenticated") {
+        setSessionError(null);
+        applyPartner(result.session.partner);
+      } else if (result.kind === "unauthenticated") {
+        setSessionError(null);
+        applyPartner(null);
+      } else {
+        setSessionError(
+          "Could not verify your session. Check your connection and try again.",
+        );
+        applyPartner(null);
+      }
+
       setHydrated(true);
       setIsAuthReady(true);
     })();
@@ -74,6 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         partner,
         isAuthReady,
+        sessionError,
         refreshSession,
         setPartner: applyPartner,
       }}

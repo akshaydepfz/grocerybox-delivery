@@ -81,7 +81,7 @@ export function PerformanceCards({ data }: PerformanceCardsProps) {
           Today&apos;s earnings
         </p>
         <p className="mt-1 text-[10px] text-white/75 sm:mt-2 sm:text-xs">
-          Demo preview · mock data
+          Commission earned today
         </p>
       </article>
     </section>

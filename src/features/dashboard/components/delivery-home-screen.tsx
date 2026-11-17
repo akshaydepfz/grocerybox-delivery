@@ -1,23 +1,27 @@
 "use client";
 
-import { Inbox } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { GroceryAnimatedLoader } from "@/components/shared/animated-loader";
 import { useAuth } from "@/features/auth/components/auth-provider";
-
 import {
-  MOCK_ACTIVE_DELIVERY,
-  MOCK_NEW_DELIVERIES,
-  MOCK_PERFORMANCE,
-  MOCK_RECENT_ACTIVITY,
-} from "../data/mock-dashboard";
+  useDeliveryOrder,
+  useDeliveryOrders,
+  useDeliveryPerformanceSummary,
+} from "@/features/delivery/hooks/use-delivery-orders";
+import type { DeliveryOrderListItem } from "@/features/delivery/types/order";
+import {
+  buildPickupLabel,
+  orderListItemToActiveDelivery,
+} from "@/features/delivery/utils/map-order-to-active";
+
 import { useMerchantStoreLabel } from "../hooks/use-merchant-store-label";
+import type { PerformanceSnapshot, RecentDeliveryActivity } from "../types/dashboard";
 
 import { ActiveDeliveryCard } from "./active-delivery-card";
 import { AvailabilityCard } from "./availability-card";
 import { DeliveryDetailPanel } from "./delivery-detail-panel";
 import { HomeHero } from "./home-hero";
-import { NewDeliveryCard } from "./new-delivery-card";
 import { PerformanceCards } from "./performance-cards";
 import { RecentActivity } from "./recent-activity";
 import { SectionHeader } from "./section-header";
@@ -33,26 +37,75 @@ function greeting(): string {
   return "Good evening";
 }
 
+function toPerformanceSnapshot(
+  summary: ReturnType<typeof useDeliveryPerformanceSummary>["data"],
+): PerformanceSnapshot {
+  return {
+    todayDeliveries: summary?.todayDeliveries ?? 0,
+    completed: summary?.completed ?? 0,
+    pending: summary?.pending ?? 0,
+    todayEarningsInr: Math.round(summary?.todayEarningsInr ?? 0),
+  };
+}
+
+function toRecentActivity(items: DeliveryOrderListItem[]): RecentDeliveryActivity[] {
+  return items.slice(0, 5).map((order) => ({
+    id: order.orderNumber,
+    customerName: order.customerName || "Customer",
+    completedAt: formatRelativeTime(order.updatedAt),
+    commissionInr: Math.round(order.commissionInr ?? 0),
+  }));
+}
+
+function formatRelativeTime(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) {
+    return "Recently";
+  }
+  return new Intl.DateTimeFormat("en-IN", {
+    hour: "numeric",
+    minute: "2-digit",
+    day: "numeric",
+    month: "short",
+  }).format(date);
+}
+
 export function DeliveryHomeScreen() {
   const { partner } = useAuth();
   const merchantStoreName = useMerchantStoreLabel();
-  const [online, setOnline] = useState(false);
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [newRequests, setNewRequests] = useState(MOCK_NEW_DELIVERIES);
+  const [online, setOnline] = useState(true);
+  const [detailOrderId, setDetailOrderId] = useState<string | null>(null);
+
+  const activeQuery = useDeliveryOrders("out_for_delivery");
+  const recentQuery = useDeliveryOrders("delivered");
+  const performanceQuery = useDeliveryPerformanceSummary();
+  const detailQuery = useDeliveryOrder(detailOrderId);
 
   const firstName = useMemo(() => {
-    const name = partner?.fullName ?? "Rahul";
+    const name = partner?.fullName ?? "Partner";
     return name.split(" ")[0] ?? name;
   }, [partner?.fullName]);
 
-  const activeDelivery = useMemo(
-    () => ({
-      ...MOCK_ACTIVE_DELIVERY,
-      merchantName: merchantStoreName,
-      pickup: `${merchantStoreName}, Kozhikode`,
-    }),
-    [merchantStoreName],
-  );
+  const activeOrder = activeQuery.data?.items[0] ?? null;
+  const otherActive = activeQuery.data?.items.slice(1) ?? [];
+  const performance = toPerformanceSnapshot(performanceQuery.data);
+  const recentActivity = toRecentActivity(recentQuery.data?.items ?? []);
+
+  const pickupLabel = buildPickupLabel(merchantStoreName, activeOrder?.fulfillmentHub);
+
+  const activeDeliveryCard = useMemo(() => {
+    if (!activeOrder) {
+      return null;
+    }
+    return orderListItemToActiveDelivery(activeOrder, pickupLabel);
+  }, [activeOrder, pickupLabel]);
+
+  const isLoading =
+    activeQuery.isLoading || performanceQuery.isLoading || recentQuery.isLoading;
+
+  if (isLoading) {
+    return <GroceryAnimatedLoader label="Loading deliveries" />;
+  }
 
   return (
     <div className="w-full min-w-0 max-w-full space-y-5 pb-4 sm:space-y-6">
@@ -61,7 +114,7 @@ export function DeliveryHomeScreen() {
         firstName={firstName}
         storeName={merchantStoreName}
         online={online}
-        performance={MOCK_PERFORMANCE}
+        performance={performance}
       />
 
       <div className="grid min-w-0 gap-5 sm:gap-6 lg:grid-cols-12 lg:items-start">
@@ -71,81 +124,108 @@ export function DeliveryHomeScreen() {
           <section>
             <SectionHeader
               title="Active delivery"
-              description="Track your current order and progress"
-            />
-            <ActiveDeliveryCard
-              delivery={activeDelivery}
-              onViewDetails={() => setDetailOpen(true)}
-            />
-          </section>
-
-          <section>
-            <SectionHeader
-              title="New requests"
               description={
-                newRequests.length > 0
-                  ? `${newRequests.length} waiting for your response`
-                  : "You're all caught up"
+                activeOrder
+                  ? "Complete payment collection when you deliver"
+                  : "No order out for delivery right now"
               }
             />
-            {newRequests.length === 0 ? (
-              <EmptyRequests />
+            {activeDeliveryCard ? (
+              <ActiveDeliveryCard
+                delivery={activeDeliveryCard}
+                onViewDetails={() => setDetailOrderId(activeOrder!.id)}
+              />
             ) : (
-              <div className="grid gap-3 sm:grid-cols-2">
-                {newRequests.map((request) => (
-                  <NewDeliveryCard
-                    key={request.id}
-                    request={request}
-                    onAccept={() =>
-                      setNewRequests((items) =>
-                        items.filter((item) => item.id !== request.id),
-                      )
-                    }
-                    onDecline={() =>
-                      setNewRequests((items) =>
-                        items.filter((item) => item.id !== request.id),
-                      )
-                    }
+              <EmptyActiveState storeName={merchantStoreName} />
+            )}
+          </section>
+
+          {otherActive.length > 0 ? (
+            <section>
+              <SectionHeader
+                title="More assigned"
+                description={`${otherActive.length} additional ${otherActive.length === 1 ? "order" : "orders"} in queue`}
+              />
+              <div className="grid gap-3">
+                {otherActive.map((order) => (
+                  <QueuedOrderCard
+                    key={order.id}
+                    order={order}
+                    onOpen={() => setDetailOrderId(order.id)}
                   />
                 ))}
               </div>
-            )}
-          </section>
+            </section>
+          ) : null}
         </div>
 
         <aside className="min-w-0 space-y-5 sm:space-y-6 lg:col-span-4 lg:sticky lg:top-24">
           <section>
             <SectionHeader
               title="Today's numbers"
-              description="Quick performance overview"
+              description="From completed deliveries today"
             />
-            <PerformanceCards data={MOCK_PERFORMANCE} />
+            <PerformanceCards data={performance} />
           </section>
 
-          <RecentActivity items={MOCK_RECENT_ACTIVITY} />
+          <RecentActivity items={recentActivity} />
         </aside>
       </div>
 
       <DeliveryDetailPanel
-        delivery={detailOpen ? activeDelivery : null}
-        onClose={() => setDetailOpen(false)}
+        order={detailQuery.data ?? null}
+        onClose={() => setDetailOrderId(null)}
+        onCompleted={() => {
+          void activeQuery.refetch();
+          void recentQuery.refetch();
+          void performanceQuery.refetch();
+        }}
       />
     </div>
   );
 }
 
-function EmptyRequests() {
+function EmptyActiveState({ storeName }: { storeName: string }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-[#D1D5DB] bg-gradient-to-b from-white to-[#FAFAFA] px-6 py-12 text-center">
-      <span className="flex size-14 items-center justify-center rounded-2xl bg-[#F0FDF4] text-[#16A34A]">
-        <Inbox className="size-7" aria-hidden />
-      </span>
-      <p className="mt-4 text-base font-semibold text-[#17211B]">
-        No new requests
+    <div className="rounded-2xl border border-dashed border-[#D1D5DB] bg-white px-4 py-10 text-center">
+      <p className="text-base font-semibold text-[#17211B]">Nothing in progress</p>
+      <p className="mt-1 text-sm text-[#737B74]">
+        When {storeName} assigns you an order and marks it out for delivery, it
+        will show up here.
       </p>
-      <p className="mt-1 max-w-xs text-sm text-[#737B74]">
-        Go online to start receiving delivery offers.
-      </p>
+    </div>
+  );
+}
+
+function QueuedOrderCard({
+  order,
+  onOpen,
+}: {
+  order: DeliveryOrderListItem;
+  onOpen: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className="w-full rounded-2xl border border-[#E5E7EB] bg-white p-4 text-left shadow-sm transition-shadow hover:shadow-md"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <QueuedOrderSummary order={order} />
+        <span className="rounded-lg bg-[#F0FDF4] px-2 py-1 text-xs font-bold text-[#15803D]">
+          ₹{order.toPay}
+        </span>
+      </div>
+    </button>
+  );
+}
+
+function QueuedOrderSummary({ order }: { order: DeliveryOrderListItem }) {
+  return (
+    <div className="min-w-0">
+      <p className="text-sm font-semibold text-[#17211B]">#{order.orderNumber}</p>
+      <p className="mt-0.5 text-sm text-[#17211B]">{order.customerName || "Customer"}</p>
+      <p className="mt-1 truncate text-xs text-[#737B74]">{order.addressSummary}</p>
     </div>
   );
 }

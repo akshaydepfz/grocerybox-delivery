@@ -1,5 +1,5 @@
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
-import { apiClient } from "@/lib/api/client";
+import { createApiClient } from "@/lib/api/client";
 import { envelopeErrorMessage, parseApiEnvelope } from "@/lib/api/envelope";
 import { ApiError } from "@/lib/api/types";
 
@@ -11,6 +11,12 @@ export type DeliveryPartnerLoginInput = {
   password: string;
   rememberMe: boolean;
 };
+
+/**
+ * Auth calls use the Next.js app origin so the session cookie is first-party
+ * (required for mobile Safari reload and LAN dev hosts).
+ */
+const deliveryAuthClient = createApiClient({ baseURL: "" });
 
 export class DeliveryLoginError extends Error {
   readonly status: number;
@@ -44,7 +50,7 @@ export async function signInDeliveryPartner(
 ): Promise<DeliveryPartnerSession> {
   void input.rememberMe;
   try {
-    const response = await apiClient.post(API_ENDPOINTS.deliveryAuthLogin, {
+    const response = await deliveryAuthClient.post(API_ENDPOINTS.deliveryAuthLogin, {
       phone: input.phone,
       password: input.password,
     });
@@ -60,21 +66,29 @@ export async function signInDeliveryPartner(
   }
 }
 
-export async function revalidateDeliveryPartnerSession(): Promise<DeliveryPartnerSession | null> {
+export type DeliverySessionRevalidateResult =
+  | { kind: "authenticated"; session: DeliveryPartnerSession }
+  | { kind: "unauthenticated" }
+  | { kind: "unavailable" };
+
+export async function revalidateDeliveryPartnerSession(): Promise<DeliverySessionRevalidateResult> {
   try {
-    const response = await apiClient.get(API_ENDPOINTS.deliveryAuthMe);
-    return assertSessionPayload(response.data, response.status);
+    const response = await deliveryAuthClient.get(API_ENDPOINTS.deliveryAuthMe);
+    return {
+      kind: "authenticated",
+      session: assertSessionPayload(response.data, response.status),
+    };
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) {
-      return null;
+      return { kind: "unauthenticated" };
     }
-    return null;
+    return { kind: "unavailable" };
   }
 }
 
 export async function signOutDeliveryPartner(): Promise<void> {
   try {
-    await apiClient.post(API_ENDPOINTS.deliveryAuthLogout);
+    await deliveryAuthClient.post(API_ENDPOINTS.deliveryAuthLogout);
   } catch {
     // Best-effort logout.
   }
