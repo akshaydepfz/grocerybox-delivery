@@ -21,6 +21,7 @@ import {
   resolveCustomerPhone,
 } from "@/features/delivery/utils/delivery-contact-links";
 import { isCodOrder } from "@/features/delivery/utils/parse-delivery-order";
+import { ApiError } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
 type DeliveryDetailPanelProps = {
@@ -75,8 +76,12 @@ export function DeliveryDetailPanel({
       );
       onCompleted?.();
       onClose();
-    } catch {
-      toast.error("Could not complete delivery. Try again.");
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : "Could not complete delivery. Try again.";
+      toast.error(message);
     }
   };
 

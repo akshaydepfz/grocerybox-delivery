@@ -84,7 +84,7 @@ export async function completeDeliveryOrder(
 ): Promise<DeliveryCompleteOrderResult> {
   const response = await deliveryApiClient.post(
     `${deliveryOrderPath(orderId)}/complete`,
-    input,
+    { collection_mode: input.collectionMode },
   );
   const data = assertDataObject(response.data, response.status);
   const orderRaw = data.order;
