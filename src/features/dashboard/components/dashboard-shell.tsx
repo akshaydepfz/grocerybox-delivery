@@ -23,7 +23,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
           <div className="flex min-w-0 flex-1 flex-col">
             <DashboardHeader variant="mobile" />
             <DashboardHeader variant="desktop" />
-            <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-5 pb-24 lg:px-6 lg:py-6 lg:pb-8">
+            <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 overflow-x-hidden px-3 py-5 pb-24 sm:px-4 lg:px-6 lg:py-6 lg:pb-8">
               {children}
             </main>
           </div>

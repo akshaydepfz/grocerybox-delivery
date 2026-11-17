@@ -18,11 +18,16 @@ import { cn } from "@/lib/utils";
 
 import type { ActiveDelivery, DeliveryStatus } from "../types/dashboard";
 
-const STEPS: { key: DeliveryStatus; label: string; short: string }[] = [
-  { key: "assigned", label: "Assigned", short: "1" },
-  { key: "picked_up", label: "Picked up", short: "2" },
-  { key: "out_for_delivery", label: "En route", short: "3" },
-  { key: "delivered", label: "Delivered", short: "4" },
+const STEPS: {
+  key: DeliveryStatus;
+  label: string;
+  shortLabel: string;
+  short: string;
+}[] = [
+  { key: "assigned", label: "Assigned", shortLabel: "Assigned", short: "1" },
+  { key: "picked_up", label: "Picked up", shortLabel: "Picked", short: "2" },
+  { key: "out_for_delivery", label: "En route", shortLabel: "En route", short: "3" },
+  { key: "delivered", label: "Delivered", shortLabel: "Done", short: "4" },
 ];
 
 const STATUS_BADGE: Record<DeliveryStatus, string> = {
@@ -44,41 +49,45 @@ export function ActiveDeliveryCard({
   const currentIndex = STEPS.findIndex((step) => step.key === delivery.status);
 
   return (
-    <section className="overflow-hidden rounded-3xl border border-[#E5E7EB] bg-white shadow-[0_16px_48px_rgba(23,33,27,0.08)]">
-      <div className="border-b border-[#F0FDF4] bg-gradient-to-r from-[#F0FDF4] via-white to-white px-5 py-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="text-[11px] font-semibold tracking-[0.12em] text-[#16A34A] uppercase">
+    <section className="w-full min-w-0 overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_16px_48px_rgba(23,33,27,0.08)] sm:rounded-3xl">
+      <div className="border-b border-[#F0FDF4] bg-gradient-to-r from-[#F0FDF4] via-white to-white px-4 py-3 sm:px-5 sm:py-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-3">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold tracking-[0.12em] text-[#16A34A] uppercase sm:text-[11px]">
               Current delivery
             </p>
-            <h3 className="mt-1 text-xl font-bold text-[#17211B]">
+            <h3 className="mt-1 text-lg font-bold text-[#17211B] sm:text-xl">
               #{delivery.id}
             </h3>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#16A34A] px-3 py-1.5 text-xs font-semibold text-white shadow-sm">
-            <Truck className="size-3.5" aria-hidden />
-            {STATUS_BADGE[delivery.status]}
+          <span className="inline-flex w-fit max-w-full items-center gap-1.5 rounded-full bg-[#16A34A] px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm sm:px-3 sm:py-1.5 sm:text-xs">
+            <Truck className="size-3.5 shrink-0" aria-hidden />
+            <span className="truncate">{STATUS_BADGE[delivery.status]}</span>
           </span>
         </div>
       </div>
 
-      <div className="space-y-5 p-5">
-        <div className="flex flex-wrap gap-2 text-xs font-medium">
+      <div className="space-y-4 p-4 sm:space-y-5 sm:p-5">
+        <div className="flex flex-wrap gap-1.5 text-[11px] font-medium sm:gap-2 sm:text-xs">
           <Chip>{delivery.distanceKm} km</Chip>
           <Chip>ETA {delivery.etaMinutes} min</Chip>
-          <Chip variant="accent">Priority route</Chip>
+          <Chip variant="accent" className="hidden min-[360px]:inline-flex">
+            Priority
+          </Chip>
         </div>
 
-        <div className="relative space-y-4 rounded-2xl border border-[#E5E7EB] bg-[#FAFAFA] p-4">
+        <div className="relative space-y-3 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] p-3 sm:space-y-4 sm:rounded-2xl sm:p-4">
           <RouteStop
             type="pickup"
             title={delivery.merchantName}
             subtitle={delivery.pickup}
           />
-          <div className="flex items-center gap-2 pl-5 text-[#737B74]">
-            <div className="h-px flex-1 border-t border-dashed border-[#D1D5DB]" />
+          <div className="flex items-center gap-2 pl-1 text-[#737B74] sm:pl-5">
+            <div className="h-px min-w-0 flex-1 border-t border-dashed border-[#D1D5DB]" />
             <ArrowRight className="size-4 shrink-0 text-[#16A34A]" />
-            <span className="text-[11px] font-medium">{delivery.distanceKm} km</span>
+            <span className="shrink-0 text-[11px] font-medium">
+              {delivery.distanceKm} km
+            </span>
           </div>
           <RouteStop
             type="drop"
@@ -88,39 +97,29 @@ export function ActiveDeliveryCard({
           />
         </div>
 
-        <div className="overflow-x-auto pb-1">
-          <ol className="flex min-w-[520px] items-center gap-0 lg:min-w-0">
-            {STEPS.map((step, index) => {
-              const done = index <= currentIndex;
-              const active = index === currentIndex;
-              return (
-                <li key={step.key} className="flex flex-1 items-center">
-                  <StepIndicator
-                    done={done}
-                    active={active}
-                    label={step.label}
-                    short={step.short}
-                  />
-                  {index < STEPS.length - 1 ? (
-                    <div
-                      className={cn(
-                        "mx-1 h-0.5 flex-1 rounded-full",
-                        index < currentIndex ? "bg-[#16A34A]" : "bg-[#E5E7EB]",
-                      )}
-                      aria-hidden
-                    />
-                  ) : null}
-                </li>
-              );
-            })}
-          </ol>
-        </div>
+        <ol className="grid w-full grid-cols-4 gap-0.5 sm:gap-1">
+          {STEPS.map((step, index) => {
+            const done = index <= currentIndex;
+            const active = index === currentIndex;
+            return (
+              <li key={step.key} className="min-w-0">
+                <StepIndicator
+                  done={done}
+                  active={active}
+                  label={step.label}
+                  shortLabel={step.shortLabel}
+                  short={step.short}
+                />
+              </li>
+            );
+          })}
+        </ol>
 
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-2">
           <Button
             type="button"
             variant="brand"
-            className="h-12 rounded-xl text-base font-semibold"
+            className="h-11 w-full rounded-xl text-sm font-semibold sm:h-12 sm:text-base"
             onClick={onViewDetails}
           >
             <Package className="size-4" />
@@ -129,7 +128,7 @@ export function ActiveDeliveryCard({
           <Button
             type="button"
             variant="outline"
-            className="h-12 rounded-xl border-[#E5E7EB] text-base"
+            className="h-11 w-full rounded-xl border-[#E5E7EB] text-sm sm:h-12 sm:text-base"
             onClick={() =>
               toast.message("Navigation demo — GPS not connected in this preview.")
             }
@@ -147,37 +146,40 @@ function StepIndicator({
   done,
   active,
   label,
+  shortLabel,
   short,
 }: {
   done: boolean;
   active: boolean;
   label: string;
+  shortLabel: string;
   short: string;
 }) {
   return (
-    <div className="flex min-w-[72px] flex-col items-center gap-1.5">
+    <div className="flex min-w-0 flex-col items-center gap-1 px-0.5 sm:gap-1.5 sm:px-1">
       <span
         className={cn(
-          "flex size-8 items-center justify-center rounded-full text-xs font-bold",
+          "flex size-7 items-center justify-center rounded-full text-[10px] font-bold sm:size-8 sm:text-xs",
           done
             ? "bg-[#16A34A] text-white"
             : "border border-[#E5E7EB] bg-white text-[#737B74]",
-          active && "ring-4 ring-[#16A34A]/20",
+          active && "ring-2 ring-[#16A34A]/25 sm:ring-4 sm:ring-[#16A34A]/20",
         )}
       >
         {done && !active ? (
-          <CheckCircle2 className="size-4" />
+          <CheckCircle2 className="size-3.5 sm:size-4" />
         ) : (
           short
         )}
       </span>
       <span
         className={cn(
-          "text-center text-[10px] font-medium sm:text-[11px]",
+          "w-full text-center text-[9px] leading-tight font-medium sm:text-[11px]",
           done ? "text-[#15803D]" : "text-[#737B74]",
         )}
       >
-        {label}
+        <span className="sm:hidden">{shortLabel}</span>
+        <span className="hidden sm:inline">{label}</span>
       </span>
     </div>
   );
@@ -186,17 +188,20 @@ function StepIndicator({
 function Chip({
   children,
   variant,
+  className,
 }: {
   children: ReactNode;
   variant?: "accent";
+  className?: string;
 }) {
   return (
     <span
       className={cn(
-        "rounded-full px-2.5 py-1",
+        "inline-flex max-w-full truncate rounded-full px-2 py-0.5 sm:px-2.5 sm:py-1",
         variant === "accent"
           ? "bg-[#F0FDF4] text-[#15803D]"
           : "bg-white text-[#737B74] ring-1 ring-[#E5E7EB]",
+        className,
       )}
     >
       {children}
@@ -217,31 +222,33 @@ function RouteStop({
 }) {
   const isPickup = type === "pickup";
   return (
-    <div className="flex gap-3">
+    <div className="flex min-w-0 gap-2.5 sm:gap-3">
       <span
         className={cn(
-          "mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl",
+          "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg sm:size-9 sm:rounded-xl",
           isPickup
             ? "bg-[#F0FDF4] text-[#16A34A]"
             : "bg-[#ECFDF5] text-[#15803D]",
         )}
       >
         {isPickup ? (
-          <Store className="size-4" aria-hidden />
+          <Store className="size-3.5 sm:size-4" aria-hidden />
         ) : (
-          <MapPin className="size-4" aria-hidden />
+          <MapPin className="size-3.5 sm:size-4" aria-hidden />
         )}
       </span>
-      <div className="min-w-0">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-[#737B74]">
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] font-semibold tracking-wide text-[#737B74] uppercase sm:text-[11px]">
           {isPickup ? "Pickup" : "Drop-off"}
         </p>
-        <p className="font-semibold text-[#17211B]">{title}</p>
-        <p className="mt-0.5 text-sm text-[#737B74]">{subtitle}</p>
+        <p className="truncate font-semibold text-[#17211B]">{title}</p>
+        <p className="mt-0.5 text-xs leading-snug text-[#737B74] break-words sm:text-sm">
+          {subtitle}
+        </p>
         {extra ? (
-          <p className="mt-1 flex items-center gap-1 text-xs text-[#737B74]">
-            <Phone className="size-3" />
-            {extra}
+          <p className="mt-1 flex min-w-0 items-center gap-1 text-xs text-[#737B74]">
+            <Phone className="size-3 shrink-0" />
+            <span className="truncate">{extra}</span>
           </p>
         ) : null}
       </div>

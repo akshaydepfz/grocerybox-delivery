@@ -55,7 +55,7 @@ export function DeliveryHomeScreen() {
   );
 
   return (
-    <div className="space-y-6 pb-4">
+    <div className="w-full min-w-0 max-w-full space-y-5 pb-4 sm:space-y-6">
       <HomeHero
         greeting={greeting()}
         firstName={firstName}
@@ -64,8 +64,8 @@ export function DeliveryHomeScreen() {
         performance={MOCK_PERFORMANCE}
       />
 
-      <div className="grid gap-6 lg:grid-cols-12 lg:items-start">
-        <div className="space-y-6 lg:col-span-8">
+      <div className="grid min-w-0 gap-5 sm:gap-6 lg:grid-cols-12 lg:items-start">
+        <div className="min-w-0 space-y-5 sm:space-y-6 lg:col-span-8">
           <AvailabilityCard online={online} onOnlineChange={setOnline} />
 
           <section>
@@ -113,7 +113,7 @@ export function DeliveryHomeScreen() {
           </section>
         </div>
 
-        <aside className="space-y-6 lg:col-span-4 lg:sticky lg:top-24">
+        <aside className="min-w-0 space-y-5 sm:space-y-6 lg:col-span-4 lg:sticky lg:top-24">
           <section>
             <SectionHeader
               title="Today's numbers"

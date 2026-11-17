@@ -20,16 +20,16 @@ export function AvailabilityCard({ online, onOnlineChange }: AvailabilityCardPro
   return (
     <section
       className={cn(
-        "relative overflow-hidden rounded-2xl border p-5 transition-all",
+        "relative w-full min-w-0 overflow-hidden rounded-2xl border p-4 transition-all sm:p-5",
         online
           ? "border-[#86efac] bg-white shadow-[0_12px_40px_rgba(22,163,74,0.12)]"
           : "border-[#E5E7EB] bg-[#FAFAFA] shadow-sm",
       )}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-3 sm:items-center sm:gap-4">
         <div
           className={cn(
-            "relative flex size-14 shrink-0 items-center justify-center rounded-2xl",
+            "relative flex size-12 shrink-0 items-center justify-center rounded-xl sm:size-14 sm:rounded-2xl",
             online
               ? "bg-[#F0FDF4] text-[#16A34A]"
               : "bg-white text-[#737B74] shadow-sm",
@@ -53,7 +53,7 @@ export function AvailabilityCard({ online, onOnlineChange }: AvailabilityCardPro
           </p>
           <p
             className={cn(
-              "mt-0.5 text-lg font-semibold",
+              "mt-0.5 text-base font-semibold sm:text-lg",
               online ? "text-[#15803D]" : "text-[#17211B]",
             )}
           >

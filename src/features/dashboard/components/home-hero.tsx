@@ -17,7 +17,7 @@ type HomeHeroProps = {
 
 function formatTodayDate(): string {
   return new Intl.DateTimeFormat("en-IN", {
-    weekday: "long",
+    weekday: "short",
     day: "numeric",
     month: "short",
   }).format(new Date());
@@ -34,7 +34,7 @@ export function HomeHero({
   const initial = (partner?.fullName ?? firstName).charAt(0).toUpperCase();
 
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-[#d1fae5] bg-gradient-to-br from-[#15803D] via-[#16A34A] to-[#22c55e] p-5 text-white shadow-[0_20px_50px_rgba(22,163,74,0.28)] sm:p-6">
+    <section className="relative w-full min-w-0 overflow-hidden rounded-2xl border border-[#d1fae5] bg-gradient-to-br from-[#15803D] via-[#16A34A] to-[#22c55e] p-4 text-white shadow-[0_20px_50px_rgba(22,163,74,0.28)] sm:rounded-3xl sm:p-5 md:p-6">
       <div
         className="pointer-events-none absolute -top-16 -right-10 size-40 rounded-full bg-white/10 blur-2xl"
         aria-hidden
@@ -44,33 +44,35 @@ export function HomeHero({
         aria-hidden
       />
 
-      <div className="relative flex items-start justify-between gap-4">
+      <div className="relative flex flex-col gap-4 min-[380px]:flex-row min-[380px]:items-start min-[380px]:justify-between">
         <div className="min-w-0 flex-1">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-medium backdrop-blur-sm">
-            <CalendarDays className="size-3.5" aria-hidden />
-            {formatTodayDate()}
+          <div className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-medium backdrop-blur-sm sm:text-[11px]">
+            <CalendarDays className="size-3.5 shrink-0" aria-hidden />
+            <span className="truncate">{formatTodayDate()}</span>
           </div>
-          <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-[1.65rem]">
+          <h1 className="mt-2.5 text-xl font-semibold tracking-tight sm:mt-3 sm:text-2xl md:text-[1.65rem]">
             {greeting}, {firstName}
             <span className="ml-1" aria-hidden>
               👋
             </span>
           </h1>
-          <p className="mt-1.5 text-sm text-white/85">Ready to deliver today?</p>
+          <p className="mt-1 text-sm text-white/85">Ready to deliver today?</p>
 
-          <div className="mt-4 inline-flex max-w-full items-center gap-2 rounded-2xl bg-white/12 px-3 py-2 backdrop-blur-sm">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-white text-[#15803D] shadow-sm">
-              <Store className="size-4" aria-hidden />
+          <div className="mt-3 flex w-full min-w-0 items-center gap-2 rounded-xl bg-white/12 px-2.5 py-2 backdrop-blur-sm sm:mt-4 sm:max-w-full sm:rounded-2xl sm:px-3">
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-white text-[#15803D] shadow-sm sm:size-8 sm:rounded-xl">
+              <Store className="size-3.5 sm:size-4" aria-hidden />
             </span>
-            <div className="min-w-0">
-              <p className="truncate text-xs text-white/70">Partnering with</p>
-              <p className="truncate text-sm font-semibold">{storeName}</p>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[10px] text-white/70 sm:text-xs">
+                Partnering with
+              </p>
+              <p className="truncate text-xs font-semibold sm:text-sm">{storeName}</p>
             </div>
           </div>
         </div>
 
-        <div className="flex shrink-0 flex-col items-center gap-2">
-          <span className="flex size-14 items-center justify-center rounded-2xl bg-white text-xl font-bold text-[#15803D] shadow-lg">
+        <div className="flex shrink-0 flex-row items-center gap-3 min-[380px]:flex-col min-[380px]:items-center min-[380px]:gap-2">
+          <span className="flex size-11 items-center justify-center rounded-xl bg-white text-lg font-bold text-[#15803D] shadow-lg sm:size-14 sm:rounded-2xl sm:text-xl">
             {initial}
           </span>
           <span
@@ -81,7 +83,7 @@ export function HomeHero({
           >
             <span
               className={cn(
-                "size-1.5 rounded-full",
+                "size-1.5 shrink-0 rounded-full",
                 online ? "animate-pulse bg-[#16A34A]" : "bg-white/70",
               )}
             />
@@ -90,11 +92,12 @@ export function HomeHero({
         </div>
       </div>
 
-      <div className="relative mt-5 grid grid-cols-3 gap-2 border-t border-white/20 pt-4 sm:gap-3">
+      <div className="relative mt-4 grid min-w-0 grid-cols-3 gap-1.5 border-t border-white/20 pt-3.5 sm:mt-5 sm:gap-2 sm:pt-4 md:gap-3">
         <HeroStat label="Today" value={String(performance.todayDeliveries)} />
-        <HeroStat label="Completed" value={String(performance.completed)} />
+        <HeroStat label="Done" value={String(performance.completed)} fullLabel="Completed" />
         <HeroStat
-          label="Earnings"
+          label="Earn"
+          fullLabel="Earnings"
           value={`₹${performance.todayEarningsInr}`}
           highlight
         />
@@ -105,26 +108,42 @@ export function HomeHero({
 
 function HeroStat({
   label,
+  fullLabel,
   value,
   highlight,
 }: {
   label: string;
+  fullLabel?: string;
   value: string;
   highlight?: boolean;
 }) {
   return (
     <div
       className={cn(
-        "rounded-2xl px-2.5 py-2 text-center sm:px-3",
+        "min-w-0 rounded-xl px-1.5 py-1.5 text-center sm:rounded-2xl sm:px-2.5 sm:py-2 md:px-3",
         highlight ? "bg-white/18 backdrop-blur-sm" : "bg-white/10",
       )}
     >
-      <p className="text-[10px] font-medium uppercase tracking-wide text-white/75 sm:text-[11px]">
-        {label}
+      <p className="truncate text-[9px] font-medium uppercase tracking-wide text-white/75 sm:text-[10px] md:text-[11px]">
+        <span className="md:hidden">{label}</span>
+        {fullLabel ? (
+          <span className="hidden md:inline">{fullLabel}</span>
+        ) : (
+          <span className="hidden md:inline">{label}</span>
+        )}
       </p>
-      <p className="mt-0.5 flex items-center justify-center gap-1 text-base font-bold sm:text-lg">
-        {highlight ? <TrendingUp className="size-3.5 opacity-90" /> : null}
-        {value}
+      <p
+        className={cn(
+          "mt-0.5 flex min-w-0 items-center justify-center gap-0.5 font-bold sm:gap-1",
+          highlight
+            ? "text-sm sm:text-base md:text-lg"
+            : "text-sm sm:text-base md:text-lg",
+        )}
+      >
+        {highlight ? (
+          <TrendingUp className="size-3 shrink-0 opacity-90 sm:size-3.5" />
+        ) : null}
+        <span className="truncate">{value}</span>
       </p>
     </div>
   );

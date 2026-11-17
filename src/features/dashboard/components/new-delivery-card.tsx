@@ -20,10 +20,10 @@ export function NewDeliveryCard({
   onDecline,
 }: NewDeliveryCardProps) {
   return (
-    <article className="group relative overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_8px_28px_rgba(23,33,27,0.06)] transition-shadow hover:shadow-[0_14px_36px_rgba(23,33,27,0.1)]">
+    <article className="group relative w-full min-w-0 overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_8px_28px_rgba(23,33,27,0.06)] transition-shadow hover:shadow-[0_14px_36px_rgba(23,33,27,0.1)]">
       <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#16A34A] via-[#22c55e] to-[#15803D]" />
 
-      <div className="p-4 pt-5">
+      <div className="p-3.5 pt-4 sm:p-4 sm:pt-5">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold tracking-wide text-[#737B74] uppercase">
@@ -51,7 +51,7 @@ export function NewDeliveryCard({
           <MetaPill icon={Clock}>~{Math.max(8, request.distanceKm * 4)} min</MetaPill>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-2">
+        <div className="mt-4 grid grid-cols-1 gap-2 min-[360px]:grid-cols-2">
           <Button
             type="button"
             variant="outline"

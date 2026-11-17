@@ -9,7 +9,7 @@ type RecentActivityProps = {
 
 export function RecentActivity({ items }: RecentActivityProps) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_8px_28px_rgba(23,33,27,0.06)]">
+    <section className="w-full min-w-0 overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_8px_28px_rgba(23,33,27,0.06)]">
       <div className="flex items-center justify-between gap-3 border-b border-[#F3F4F6] bg-gradient-to-r from-[#FAFAFA] to-white px-5 py-4">
         <div>
           <h2 className="text-base font-semibold text-[#17211B]">Recent activity</h2>
