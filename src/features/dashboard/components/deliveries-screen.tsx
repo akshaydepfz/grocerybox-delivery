@@ -7,6 +7,7 @@ import {
   useDeliveryOrder,
   useDeliveryOrders,
 } from "@/features/delivery/hooks/use-delivery-orders";
+import { DeliveryApiErrorBanner } from "@/features/dashboard/components/delivery-api-error-banner";
 import type { DeliveryOrderStep } from "@/features/delivery/types/order";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +33,13 @@ export function DeliveriesScreen() {
 
   return (
     <div className="space-y-5">
+      {ordersQuery.error ? (
+        <DeliveryApiErrorBanner
+          error={ordersQuery.error}
+          onRetry={() => void ordersQuery.refetch()}
+        />
+      ) : null}
+
       <SectionHeader
         title="My deliveries"
         description="Orders assigned to you by your store"

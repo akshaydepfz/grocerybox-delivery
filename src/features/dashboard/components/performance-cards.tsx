@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock3, IndianRupee, Package, TrendingUp } from "lucide-react";
+import { CheckCircle2, Clock3, IndianRupee, Package } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -65,15 +65,9 @@ export function PerformanceCards({ data }: PerformanceCardsProps) {
       ))}
 
       <article className="col-span-2 min-w-0 rounded-xl border border-[#15803D]/20 bg-gradient-to-br from-[#15803D] to-[#16A34A] p-3 text-white shadow-[0_12px_32px_rgba(21,128,61,0.35)] sm:rounded-2xl sm:p-4 lg:col-span-2">
-        <div className="flex items-start justify-between gap-2">
-          <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/15 sm:size-10 sm:rounded-xl">
-            <IndianRupee className="size-4 sm:size-[18px]" aria-hidden />
-          </span>
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-semibold">
-            <TrendingUp className="size-3" />
-            +12%
-          </span>
-        </div>
+        <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/15 sm:size-10 sm:rounded-xl">
+          <IndianRupee className="size-4 sm:size-[18px]" aria-hidden />
+        </span>
         <p className="mt-3 text-2xl font-bold tracking-tight sm:mt-4 sm:text-3xl">
           ₹{data.todayEarningsInr}
         </p>

@@ -1,52 +1,36 @@
 "use client";
 
 import {
-  ArrowRight,
   CheckCircle2,
   MapPin,
-  Navigation,
   Package,
   Phone,
   Store,
   Truck,
 } from "lucide-react";
-import type { ReactNode } from "react";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import type { DeliveryOrderListItem } from "@/features/delivery/types/order";
+import { buildPickupLabel } from "@/features/delivery/utils/map-order-to-active";
+import { isCodOrder } from "@/features/delivery/utils/parse-delivery-order";
 import { cn } from "@/lib/utils";
 
-import type { ActiveDelivery, DeliveryStatus } from "../types/dashboard";
+type ActiveDeliveryCardProps = {
+  order: DeliveryOrderListItem;
+  onViewDetails: () => void;
+};
 
-const STEPS: {
-  key: DeliveryStatus;
-  label: string;
-  shortLabel: string;
-  short: string;
-}[] = [
+const STEPS = [
   { key: "assigned", label: "Assigned", shortLabel: "Assigned", short: "1" },
   { key: "picked_up", label: "Picked up", shortLabel: "Picked", short: "2" },
   { key: "out_for_delivery", label: "En route", shortLabel: "En route", short: "3" },
   { key: "delivered", label: "Delivered", shortLabel: "Done", short: "4" },
-];
+] as const;
 
-const STATUS_BADGE: Record<DeliveryStatus, string> = {
-  assigned: "Assigned",
-  picked_up: "Picked up",
-  out_for_delivery: "Out for delivery",
-  delivered: "Delivered",
-};
-
-type ActiveDeliveryCardProps = {
-  delivery: ActiveDelivery;
-  onViewDetails: () => void;
-};
-
-export function ActiveDeliveryCard({
-  delivery,
-  onViewDetails,
-}: ActiveDeliveryCardProps) {
-  const currentIndex = STEPS.findIndex((step) => step.key === delivery.status);
+export function ActiveDeliveryCard({ order, onViewDetails }: ActiveDeliveryCardProps) {
+  const currentIndex = STEPS.findIndex((step) => step.key === "out_for_delivery");
+  const pickup = buildPickupLabel(order.merchantStoreName, order.fulfillmentHub);
+  const cod = isCodOrder(order);
 
   return (
     <section className="w-full min-w-0 overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_16px_48px_rgba(23,33,27,0.08)] sm:rounded-3xl">
@@ -57,43 +41,30 @@ export function ActiveDeliveryCard({
               Current delivery
             </p>
             <h3 className="mt-1 text-lg font-bold text-[#17211B] sm:text-xl">
-              #{delivery.id}
+              #{order.orderNumber}
             </h3>
           </div>
           <span className="inline-flex w-fit max-w-full items-center gap-1.5 rounded-full bg-[#16A34A] px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm sm:px-3 sm:py-1.5 sm:text-xs">
             <Truck className="size-3.5 shrink-0" aria-hidden />
-            <span className="truncate">{STATUS_BADGE[delivery.status]}</span>
+            Out for delivery
           </span>
         </div>
       </div>
 
       <div className="space-y-4 p-4 sm:space-y-5 sm:p-5">
         <div className="flex flex-wrap gap-1.5 text-[11px] font-medium sm:gap-2 sm:text-xs">
-          <Chip>{delivery.distanceKm} km</Chip>
-          <Chip>ETA {delivery.etaMinutes} min</Chip>
-          <Chip variant="accent" className="hidden min-[360px]:inline-flex">
-            Priority
-          </Chip>
+          <Chip variant="accent">Collect ₹{order.toPay}</Chip>
+          <Chip>{cod ? "Cash on delivery" : "Prepaid"}</Chip>
+          {order.deliveryLabel ? <Chip>{order.deliveryLabel}</Chip> : null}
         </div>
 
         <div className="relative space-y-3 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] p-3 sm:space-y-4 sm:rounded-2xl sm:p-4">
-          <RouteStop
-            type="pickup"
-            title={delivery.merchantName}
-            subtitle={delivery.pickup}
-          />
-          <div className="flex items-center gap-2 pl-1 text-[#737B74] sm:pl-5">
-            <div className="h-px min-w-0 flex-1 border-t border-dashed border-[#D1D5DB]" />
-            <ArrowRight className="size-4 shrink-0 text-[#16A34A]" />
-            <span className="shrink-0 text-[11px] font-medium">
-              {delivery.distanceKm} km
-            </span>
-          </div>
+          <RouteStop type="pickup" title={order.merchantStoreName} subtitle={pickup} />
           <RouteStop
             type="drop"
-            title={delivery.customerName}
-            subtitle={delivery.dropoff}
-            extra={delivery.customerPhone}
+            title={order.customerName || "Customer"}
+            subtitle={order.addressSummary}
+            extra={order.customerPhone}
           />
         </div>
 
@@ -115,28 +86,15 @@ export function ActiveDeliveryCard({
           })}
         </ol>
 
-        <div className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-2">
-          <Button
-            type="button"
-            variant="brand"
-            className="h-11 w-full rounded-xl text-sm font-semibold sm:h-12 sm:text-base"
-            onClick={onViewDetails}
-          >
-            <Package className="size-4" />
-            View delivery
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            className="h-11 w-full rounded-xl border-[#E5E7EB] text-sm sm:h-12 sm:text-base"
-            onClick={() =>
-              toast.message("Navigation demo — GPS not connected in this preview.")
-            }
-          >
-            <Navigation className="size-4" />
-            Navigate
-          </Button>
-        </div>
+        <Button
+          type="button"
+          variant="brand"
+          className="h-11 w-full rounded-xl text-sm font-semibold sm:h-12 sm:text-base"
+          onClick={onViewDetails}
+        >
+          <Package className="size-4" />
+          View &amp; complete delivery
+        </Button>
       </div>
     </section>
   );
@@ -188,11 +146,9 @@ function StepIndicator({
 function Chip({
   children,
   variant,
-  className,
 }: {
-  children: ReactNode;
+  children: React.ReactNode;
   variant?: "accent";
-  className?: string;
 }) {
   return (
     <span
@@ -201,7 +157,6 @@ function Chip({
         variant === "accent"
           ? "bg-[#F0FDF4] text-[#15803D]"
           : "bg-white text-[#737B74] ring-1 ring-[#E5E7EB]",
-        className,
       )}
     >
       {children}

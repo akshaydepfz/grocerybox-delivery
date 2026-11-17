@@ -6,21 +6,6 @@ import { Button } from "@/components/ui/button";
 
 import { useDashboardUI } from "../context/dashboard-ui-context";
 
-const MOCK_NOTIFICATIONS = [
-  {
-    id: "1",
-    title: "New delivery request",
-    body: "Order #GB10246 is waiting for your response.",
-    time: "2 min ago",
-  },
-  {
-    id: "2",
-    title: "Payout update",
-    body: "Today's earnings summary is ready to review.",
-    time: "1 hr ago",
-  },
-];
-
 export function NotificationPanel() {
   const { notificationsOpen, setNotificationsOpen } = useDashboardUI();
 
@@ -55,28 +40,13 @@ export function NotificationPanel() {
             <X className="size-4" />
           </Button>
         </div>
-        <div className="flex-1 space-y-3 overflow-y-auto p-4">
-          {MOCK_NOTIFICATIONS.map((item) => (
-            <div
-              key={item.id}
-              className="rounded-2xl border border-[#E5E7EB] bg-[#FAFAFA] p-4"
-            >
-              <div className="mb-2 flex items-start gap-3">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#F0FDF4] text-[#16A34A]">
-                  <Package className="size-4" />
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-[#17211B]">
-                    {item.title}
-                  </p>
-                  <p className="mt-1 text-sm text-[#737B74]">{item.body}</p>
-                  <p className="mt-2 text-xs text-[#737B74]">{item.time}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-          <p className="text-center text-xs text-[#737B74]">
-            Demo notifications — not connected to a live backend.
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
+          <span className="flex size-12 items-center justify-center rounded-2xl bg-[#F0FDF4] text-[#16A34A]">
+            <Package className="size-5" aria-hidden />
+          </span>
+          <p className="text-sm font-medium text-[#17211B]">No notifications yet</p>
+          <p className="max-w-xs text-xs text-[#737B74]">
+            New assignments from your store will appear here when we enable push alerts.
           </p>
         </div>
       </div>

@@ -10,16 +10,13 @@ import {
   useDeliveryPerformanceSummary,
 } from "@/features/delivery/hooks/use-delivery-orders";
 import type { DeliveryOrderListItem } from "@/features/delivery/types/order";
-import {
-  buildPickupLabel,
-  orderListItemToActiveDelivery,
-} from "@/features/delivery/utils/map-order-to-active";
 
 import { useMerchantStoreLabel } from "../hooks/use-merchant-store-label";
 import type { PerformanceSnapshot, RecentDeliveryActivity } from "../types/dashboard";
 
 import { ActiveDeliveryCard } from "./active-delivery-card";
 import { AvailabilityCard } from "./availability-card";
+import { DeliveryApiErrorBanner } from "./delivery-api-error-banner";
 import { DeliveryDetailPanel } from "./delivery-detail-panel";
 import { HomeHero } from "./home-hero";
 import { PerformanceCards } from "./performance-cards";
@@ -91,17 +88,17 @@ export function DeliveryHomeScreen() {
   const performance = toPerformanceSnapshot(performanceQuery.data);
   const recentActivity = toRecentActivity(recentQuery.data?.items ?? []);
 
-  const pickupLabel = buildPickupLabel(merchantStoreName, activeOrder?.fulfillmentHub);
-
-  const activeDeliveryCard = useMemo(() => {
-    if (!activeOrder) {
-      return null;
-    }
-    return orderListItemToActiveDelivery(activeOrder, pickupLabel);
-  }, [activeOrder, pickupLabel]);
-
   const isLoading =
     activeQuery.isLoading || performanceQuery.isLoading || recentQuery.isLoading;
+
+  const loadError =
+    activeQuery.error ?? performanceQuery.error ?? recentQuery.error ?? null;
+
+  const retryAll = () => {
+    void activeQuery.refetch();
+    void performanceQuery.refetch();
+    void recentQuery.refetch();
+  };
 
   if (isLoading) {
     return <GroceryAnimatedLoader label="Loading deliveries" />;
@@ -109,6 +106,10 @@ export function DeliveryHomeScreen() {
 
   return (
     <div className="w-full min-w-0 max-w-full space-y-5 pb-4 sm:space-y-6">
+      {loadError ? (
+        <DeliveryApiErrorBanner error={loadError} onRetry={retryAll} />
+      ) : null}
+
       <HomeHero
         greeting={greeting()}
         firstName={firstName}
@@ -130,10 +131,10 @@ export function DeliveryHomeScreen() {
                   : "No order out for delivery right now"
               }
             />
-            {activeDeliveryCard ? (
+            {activeOrder ? (
               <ActiveDeliveryCard
-                delivery={activeDeliveryCard}
-                onViewDetails={() => setDetailOrderId(activeOrder!.id)}
+                order={activeOrder}
+                onViewDetails={() => setDetailOrderId(activeOrder.id)}
               />
             ) : (
               <EmptyActiveState storeName={merchantStoreName} />
