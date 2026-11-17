@@ -8,6 +8,7 @@ import { ApiError } from "@/lib/api/types";
 import type { EarningsPeriod } from "../types/earnings";
 import type { DeliveryCompleteOrderInput, DeliveryOrderStep } from "../types/order";
 import { fetchDeliveryEarnings } from "../services/delivery-earnings-service";
+import { fetchDeliveryProfile } from "../services/delivery-profile-service";
 import {
   completeDeliveryOrder,
   fetchDeliveryOrder,
@@ -18,6 +19,7 @@ import {
 const deliveryOrdersKey = ["delivery", "orders"] as const;
 const deliveryPerformanceKey = ["delivery", "performance"] as const;
 const deliveryEarningsKey = ["delivery", "earnings"] as const;
+const deliveryProfileKey = ["delivery", "profile"] as const;
 
 export function useDeliveryApiEnabled(): boolean {
   const { isAuthReady, partner } = useAuth();
@@ -66,6 +68,15 @@ export function useDeliveryPerformanceSummary() {
   return useQuery({
     queryKey: deliveryPerformanceKey,
     queryFn: fetchDeliveryPerformanceSummary,
+    enabled,
+  });
+}
+
+export function useDeliveryProfile() {
+  const enabled = useDeliveryApiEnabled();
+  return useQuery({
+    queryKey: deliveryProfileKey,
+    queryFn: fetchDeliveryProfile,
     enabled,
   });
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Bell, Menu, PanelLeftClose, PanelLeftOpen, User } from "lucide-react";
 
 import { AppLogoImage } from "@/components/branding/app-logo";
@@ -60,14 +61,13 @@ export function DashboardHeader({ variant = "desktop" }: DashboardHeaderProps) {
               <Bell className="size-5" />
               <span className="absolute top-2 right-2 size-2 rounded-full bg-[#16A34A]" />
             </button>
-            <button
-              type="button"
+            <Link
+              href="/profile"
               className="flex size-10 items-center justify-center rounded-xl bg-[#F0FDF4] text-sm font-semibold text-[#15803D]"
-              aria-label="Open profile menu"
-              onClick={() => setMobileDrawerOpen(true)}
+              aria-label="Open profile"
             >
               {initial}
-            </button>
+            </Link>
           </div>
         </div>
       </header>

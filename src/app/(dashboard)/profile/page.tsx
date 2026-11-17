@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
-import { User } from "lucide-react";
 
-import { DashboardPlaceholderPage } from "@/features/dashboard/components/dashboard-placeholder-page";
+import { ProfileScreen } from "@/features/dashboard/components/profile-screen";
 
 export const metadata: Metadata = {
   title: "Profile",
 };
 
 export default function ProfilePage() {
-  return (
-    <DashboardPlaceholderPage
-      title="Profile"
-      description="Manage your delivery partner profile and merchant association."
-      icon={User}
-    />
-  );
+  return <ProfileScreen />;
 }

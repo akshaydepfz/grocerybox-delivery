@@ -16,7 +16,12 @@ export function MobileBottomNavigation() {
       style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0px)" }}
       aria-label="Primary"
     >
-      <div className="grid grid-cols-5 px-1 pt-1 pb-1">
+      <div
+        className="mx-auto grid w-full max-w-3xl px-2 pt-1 pb-1"
+        style={{
+          gridTemplateColumns: `repeat(${MOBILE_BOTTOM_NAV.length}, minmax(0, 1fr))`,
+        }}
+      >
         {MOBILE_BOTTOM_NAV.map((item) => {
           const active =
             pathname === item.href ||
@@ -27,7 +32,7 @@ export function MobileBottomNavigation() {
               key={item.id}
               href={item.href}
               className={cn(
-                "flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-lg px-1 text-[10px] font-medium transition-colors",
+                "flex min-h-[52px] w-full flex-col items-center justify-center gap-0.5 rounded-lg px-0.5 text-[10px] font-medium transition-colors",
                 active ? "text-[#16A34A]" : "text-[#737B74]",
               )}
             >

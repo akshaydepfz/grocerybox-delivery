@@ -18,6 +18,7 @@ export const API_ENDPOINTS = {
   deliveryOrders: `${API_V1_PREFIX}/delivery/orders`,
   deliveryPerformanceSummary: `${API_V1_PREFIX}/delivery/performance/summary`,
   deliveryEarnings: `${API_V1_PREFIX}/delivery/earnings`,
+  deliveryProfile: `${API_V1_PREFIX}/delivery/profile`,
 } as const satisfies Record<string, string>;
 
 export function deliveryOrderPath(orderId: string): string {
