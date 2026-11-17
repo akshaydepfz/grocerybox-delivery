@@ -1,6 +1,6 @@
 "use client";
 
-import { Store } from "lucide-react";
+import { Inbox } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/features/auth/components/auth-provider";
@@ -16,9 +16,11 @@ import { useMerchantStoreLabel } from "../hooks/use-merchant-store-label";
 import { ActiveDeliveryCard } from "./active-delivery-card";
 import { AvailabilityCard } from "./availability-card";
 import { DeliveryDetailPanel } from "./delivery-detail-panel";
+import { HomeHero } from "./home-hero";
 import { NewDeliveryCard } from "./new-delivery-card";
 import { PerformanceCards } from "./performance-cards";
 import { RecentActivity } from "./recent-activity";
+import { SectionHeader } from "./section-header";
 
 function greeting(): string {
   const hour = new Date().getHours();
@@ -43,89 +45,107 @@ export function DeliveryHomeScreen() {
     return name.split(" ")[0] ?? name;
   }, [partner?.fullName]);
 
+  const activeDelivery = useMemo(
+    () => ({
+      ...MOCK_ACTIVE_DELIVERY,
+      merchantName: merchantStoreName,
+      pickup: `${merchantStoreName}, Kozhikode`,
+    }),
+    [merchantStoreName],
+  );
+
   return (
-    <div className="space-y-6 pb-2">
-      <section>
-        <h1 className="text-xl font-semibold text-[#17211B] lg:text-2xl">
-          {greeting()}, {firstName} 👋
-        </h1>
-        <p className="mt-1 text-sm text-[#737B74]">Ready to deliver today?</p>
-        <MerchantAssociationPill storeName={merchantStoreName} />
-      </section>
-
-      <AvailabilityCard online={online} onOnlineChange={setOnline} />
-
-      <div>
-        <h2 className="mb-3 text-base font-semibold text-[#17211B]">
-          Today&apos;s performance
-        </h2>
-        <PerformanceCards data={MOCK_PERFORMANCE} />
-      </div>
-
-      <ActiveDeliveryCard
-        delivery={{
-          ...MOCK_ACTIVE_DELIVERY,
-          merchantName: merchantStoreName,
-          pickup: `${merchantStoreName}, Kozhikode`,
-        }}
-        onViewDetails={() => setDetailOpen(true)}
+    <div className="space-y-6 pb-4">
+      <HomeHero
+        greeting={greeting()}
+        firstName={firstName}
+        storeName={merchantStoreName}
+        online={online}
+        performance={MOCK_PERFORMANCE}
       />
 
-      <section>
-        <h2 className="mb-3 text-base font-semibold text-[#17211B]">
-          New Deliveries
-        </h2>
-        {newRequests.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white px-4 py-8 text-center text-sm text-[#737B74]">
-            No pending requests right now.
-          </p>
-        ) : (
-          <div className="grid gap-3 lg:grid-cols-2">
-            {newRequests.map((request) => (
-              <NewDeliveryCard
-                key={request.id}
-                request={request}
-                onAccept={() =>
-                  setNewRequests((items) =>
-                    items.filter((item) => item.id !== request.id),
-                  )
-                }
-                onDecline={() =>
-                  setNewRequests((items) =>
-                    items.filter((item) => item.id !== request.id),
-                  )
-                }
-              />
-            ))}
-          </div>
-        )}
-      </section>
+      <div className="grid gap-6 lg:grid-cols-12 lg:items-start">
+        <div className="space-y-6 lg:col-span-8">
+          <AvailabilityCard online={online} onOnlineChange={setOnline} />
 
-      <RecentActivity items={MOCK_RECENT_ACTIVITY} />
+          <section>
+            <SectionHeader
+              title="Active delivery"
+              description="Track your current order and progress"
+            />
+            <ActiveDeliveryCard
+              delivery={activeDelivery}
+              onViewDetails={() => setDetailOpen(true)}
+            />
+          </section>
+
+          <section>
+            <SectionHeader
+              title="New requests"
+              description={
+                newRequests.length > 0
+                  ? `${newRequests.length} waiting for your response`
+                  : "You're all caught up"
+              }
+            />
+            {newRequests.length === 0 ? (
+              <EmptyRequests />
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {newRequests.map((request) => (
+                  <NewDeliveryCard
+                    key={request.id}
+                    request={request}
+                    onAccept={() =>
+                      setNewRequests((items) =>
+                        items.filter((item) => item.id !== request.id),
+                      )
+                    }
+                    onDecline={() =>
+                      setNewRequests((items) =>
+                        items.filter((item) => item.id !== request.id),
+                      )
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+
+        <aside className="space-y-6 lg:col-span-4 lg:sticky lg:top-24">
+          <section>
+            <SectionHeader
+              title="Today's numbers"
+              description="Quick performance overview"
+            />
+            <PerformanceCards data={MOCK_PERFORMANCE} />
+          </section>
+
+          <RecentActivity items={MOCK_RECENT_ACTIVITY} />
+        </aside>
+      </div>
 
       <DeliveryDetailPanel
-        delivery={
-          detailOpen
-            ? {
-                ...MOCK_ACTIVE_DELIVERY,
-                merchantName: merchantStoreName,
-                pickup: `${merchantStoreName}, Kozhikode`,
-              }
-            : null
-        }
+        delivery={detailOpen ? activeDelivery : null}
         onClose={() => setDetailOpen(false)}
       />
     </div>
   );
 }
 
-function MerchantAssociationPill({ storeName }: { storeName: string }) {
+function EmptyRequests() {
   return (
-    <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-3 py-1.5 text-xs text-[#737B74] shadow-sm">
-      <span className="flex size-7 items-center justify-center rounded-full bg-[#F0FDF4] text-[#16A34A]">
-        <Store className="size-3.5" aria-hidden />
+    <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-[#D1D5DB] bg-gradient-to-b from-white to-[#FAFAFA] px-6 py-12 text-center">
+      <span className="flex size-14 items-center justify-center rounded-2xl bg-[#F0FDF4] text-[#16A34A]">
+        <Inbox className="size-7" aria-hidden />
       </span>
-      Working with {storeName}
+      <p className="mt-4 text-base font-semibold text-[#17211B]">
+        No new requests
+      </p>
+      <p className="mt-1 max-w-xs text-sm text-[#737B74]">
+        Go online to start receiving delivery offers.
+      </p>
     </div>
   );
 }

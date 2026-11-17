@@ -1,6 +1,6 @@
 "use client";
 
-import { Radio } from "lucide-react";
+import { Bike, Radio, Wifi, WifiOff } from "lucide-react";
 import { toast } from "sonner";
 
 import { Switch } from "@/components/ui/switch";
@@ -20,44 +20,65 @@ export function AvailabilityCard({ online, onOnlineChange }: AvailabilityCardPro
   return (
     <section
       className={cn(
-        "rounded-2xl border p-5 shadow-[0_8px_30px_rgba(23,33,27,0.05)] transition-colors",
+        "relative overflow-hidden rounded-2xl border p-5 transition-all",
         online
-          ? "border-[#bbf7d0] bg-gradient-to-br from-[#F0FDF4] to-white"
-          : "border-[#E5E7EB] bg-white",
+          ? "border-[#86efac] bg-white shadow-[0_12px_40px_rgba(22,163,74,0.12)]"
+          : "border-[#E5E7EB] bg-[#FAFAFA] shadow-sm",
       )}
     >
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium text-[#737B74]">Your availability</p>
-          <div className="mt-2 flex items-center gap-2">
-            <span
-              className={cn(
-                "flex size-10 items-center justify-center rounded-xl",
-                online
-                  ? "bg-[#16A34A]/15 text-[#15803D]"
-                  : "bg-[#F3F4F6] text-[#737B74]",
-              )}
-            >
-              <Radio className="size-5" />
+      <div className="flex items-center gap-4">
+        <div
+          className={cn(
+            "relative flex size-14 shrink-0 items-center justify-center rounded-2xl",
+            online
+              ? "bg-[#F0FDF4] text-[#16A34A]"
+              : "bg-white text-[#737B74] shadow-sm",
+          )}
+        >
+          {online ? (
+            <Bike className="size-7" aria-hidden />
+          ) : (
+            <Radio className="size-6" aria-hidden />
+          )}
+          {online ? (
+            <span className="absolute -top-0.5 -right-0.5 size-3 rounded-full border-2 border-white bg-[#16A34A]">
+              <span className="absolute inset-0 animate-ping rounded-full bg-[#16A34A] opacity-60" />
             </span>
-            <p
-              className={cn(
-                "text-xl font-semibold tracking-tight",
-                online ? "text-[#15803D]" : "text-[#17211B]",
-              )}
-            >
-              {online ? "You're Online" : "You're Offline"}
-            </p>
-          </div>
+          ) : null}
         </div>
-        <div className="flex flex-col items-end gap-1">
+
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-semibold tracking-wide text-[#737B74] uppercase">
+            Your availability
+          </p>
+          <p
+            className={cn(
+              "mt-0.5 text-lg font-semibold",
+              online ? "text-[#15803D]" : "text-[#17211B]",
+            )}
+          >
+            {online ? "You're Online" : "You're Offline"}
+          </p>
+          <p className="mt-1 flex items-center gap-1.5 text-xs text-[#737B74]">
+            {online ? (
+              <Wifi className="size-3.5 text-[#16A34A]" />
+            ) : (
+              <WifiOff className="size-3.5" />
+            )}
+            {online
+              ? "You'll receive new delivery requests"
+              : "Turn on to start receiving orders"}
+          </p>
+        </div>
+
+        <div className="flex flex-col items-center gap-1">
           <Switch
             checked={online}
             onCheckedChange={handleToggle}
             aria-label="Toggle online availability"
           />
-          <span className="text-[11px] font-medium text-[#737B74]">
-            {online ? "Online" : "Offline"}
+          <span className="text-[10px] font-semibold text-[#737B74]">
+            {online ? "ON" : "OFF"}
           </span>
         </div>
       </div>
