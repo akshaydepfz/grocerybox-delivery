@@ -55,6 +55,8 @@ function parseAddress(raw: unknown): DeliveryOrderAddress {
     state: readString(record.state),
     pinCode: readString(record.pin_code),
     landmark: readString(record.landmark) || undefined,
+    lat: readOptionalNumber(record.lat),
+    lng: readOptionalNumber(record.lng),
   };
 }
 

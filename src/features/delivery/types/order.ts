@@ -38,6 +38,8 @@ export type DeliveryOrderAddress = {
   state: string;
   pinCode: string;
   landmark?: string;
+  lat?: number;
+  lng?: number;
 };
 
 export type DeliveryOrderLine = {

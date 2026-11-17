@@ -1,12 +1,25 @@
 "use client";
 
-import { Banknote, CheckCircle2, Loader2, Smartphone, X } from "lucide-react";
+import {
+  Banknote,
+  CheckCircle2,
+  Loader2,
+  Navigation,
+  Phone,
+  Smartphone,
+  X,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { useCompleteDeliveryOrder } from "@/features/delivery/hooks/use-delivery-orders";
 import type { DeliveryOrderDetail } from "@/features/delivery/types/order";
+import {
+  buildGoogleMapsDirectionsUrl,
+  buildTelHref,
+  resolveCustomerPhone,
+} from "@/features/delivery/utils/delivery-contact-links";
 import { isCodOrder } from "@/features/delivery/utils/parse-delivery-order";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +52,12 @@ export function DeliveryDetailPanel({
 
   const cod = isCodOrder(order);
   const defaultMode = cod ? null : "online";
+  const phone = resolveCustomerPhone(order.customerPhone, order.address);
+  const telHref = buildTelHref(phone);
+  const mapsHref = buildGoogleMapsDirectionsUrl(
+    order.address,
+    order.addressSummary,
+  );
 
   const handleComplete = async () => {
     const mode = collectionMode ?? defaultMode;
@@ -103,6 +122,37 @@ export function DeliveryDetailPanel({
             <DetailRow label="Commission" value={`₹${order.commissionInr}`} />
           ) : null}
         </dl>
+
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          {telHref ? (
+            <a
+              href={telHref}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#E5E7EB] bg-white text-sm font-semibold text-[#17211B] transition-colors hover:border-[#86efac] hover:bg-[#F0FDF4]"
+            >
+              <Phone className="size-4 text-[#16A34A]" aria-hidden />
+              Call customer
+            </a>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              className="h-11 rounded-xl border-[#E5E7EB] text-sm"
+              onClick={() => toast.message("No phone number on this order.")}
+            >
+              <Phone className="size-4" />
+              Call customer
+            </Button>
+          )}
+          <a
+            href={mapsHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#15803D]/30 bg-[#F0FDF4] text-sm font-semibold text-[#15803D] transition-colors hover:bg-[#DCFCE7]"
+          >
+            <Navigation className="size-4" aria-hidden />
+            Directions
+          </a>
+        </div>
 
         {order.lines.length > 0 ? (
           <div className="mt-4 rounded-xl border border-[#F3F4F6] bg-[#FAFAFA] p-3">
