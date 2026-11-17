@@ -15,13 +15,14 @@ import {
   DASHBOARD_NAV_ITEMS,
   DASHBOARD_SIDEBAR_EXTRA,
 } from "../constants/nav-items";
-import { MOCK_MERCHANT_NAME } from "../data/mock-dashboard";
 import { useDashboardUI } from "../context/dashboard-ui-context";
+import { useMerchantStoreLabel } from "../hooks/use-merchant-store-label";
 
 export function MobileNavigationDrawer() {
   const pathname = usePathname();
   const { partner, setPartner } = useAuth();
   const { mobileDrawerOpen, setMobileDrawerOpen } = useDashboardUI();
+  const merchantStoreName = useMerchantStoreLabel();
 
   useEffect(() => {
     setMobileDrawerOpen(false);
@@ -78,7 +79,7 @@ export function MobileNavigationDrawer() {
 
         <div className="border-b border-[#E5E7EB] px-4 py-4">
           <p className="text-sm font-semibold text-[#17211B]">{displayName}</p>
-          <p className="text-xs text-[#737B74]">{MOCK_MERCHANT_NAME}</p>
+          <p className="text-xs text-[#737B74]">{merchantStoreName}</p>
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">

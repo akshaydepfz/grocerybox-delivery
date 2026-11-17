@@ -37,6 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession({
           partnerId: next.id,
           merchantId: next.merchantId,
+          merchantStoreName: next.merchantStoreName,
           fullName: next.fullName,
           phone: next.phone,
         });

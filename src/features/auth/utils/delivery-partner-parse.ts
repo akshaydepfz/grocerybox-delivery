@@ -9,10 +9,17 @@ export function deliveryPartnerFromJson(
 ): DeliveryPartnerProfile {
   const id = readString(raw.id);
   const merchantId = readString(raw.merchant_id);
+  const merchantStoreName = readString(raw.merchant_store_name);
   const fullName = readString(raw.full_name);
   const phone = readString(raw.phone);
   if (!id || !merchantId || !fullName || !phone) {
     throw new Error("Invalid delivery partner profile in response.");
   }
-  return { id, merchantId, fullName, phone };
+  return {
+    id,
+    merchantId,
+    merchantStoreName,
+    fullName,
+    phone,
+  };
 }

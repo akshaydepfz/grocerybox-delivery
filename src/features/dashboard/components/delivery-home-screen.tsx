@@ -7,11 +7,11 @@ import { useAuth } from "@/features/auth/components/auth-provider";
 
 import {
   MOCK_ACTIVE_DELIVERY,
-  MOCK_MERCHANT_NAME,
   MOCK_NEW_DELIVERIES,
   MOCK_PERFORMANCE,
   MOCK_RECENT_ACTIVITY,
 } from "../data/mock-dashboard";
+import { useMerchantStoreLabel } from "../hooks/use-merchant-store-label";
 
 import { ActiveDeliveryCard } from "./active-delivery-card";
 import { AvailabilityCard } from "./availability-card";
@@ -33,6 +33,7 @@ function greeting(): string {
 
 export function DeliveryHomeScreen() {
   const { partner } = useAuth();
+  const merchantStoreName = useMerchantStoreLabel();
   const [online, setOnline] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [newRequests, setNewRequests] = useState(MOCK_NEW_DELIVERIES);
@@ -49,7 +50,7 @@ export function DeliveryHomeScreen() {
           {greeting()}, {firstName} 👋
         </h1>
         <p className="mt-1 text-sm text-[#737B74]">Ready to deliver today?</p>
-        <MerchantAssociationPill />
+        <MerchantAssociationPill storeName={merchantStoreName} />
       </section>
 
       <AvailabilityCard online={online} onOnlineChange={setOnline} />
@@ -62,7 +63,11 @@ export function DeliveryHomeScreen() {
       </div>
 
       <ActiveDeliveryCard
-        delivery={MOCK_ACTIVE_DELIVERY}
+        delivery={{
+          ...MOCK_ACTIVE_DELIVERY,
+          merchantName: merchantStoreName,
+          pickup: `${merchantStoreName}, Kozhikode`,
+        }}
         onViewDetails={() => setDetailOpen(true)}
       />
 
@@ -99,20 +104,28 @@ export function DeliveryHomeScreen() {
       <RecentActivity items={MOCK_RECENT_ACTIVITY} />
 
       <DeliveryDetailPanel
-        delivery={detailOpen ? MOCK_ACTIVE_DELIVERY : null}
+        delivery={
+          detailOpen
+            ? {
+                ...MOCK_ACTIVE_DELIVERY,
+                merchantName: merchantStoreName,
+                pickup: `${merchantStoreName}, Kozhikode`,
+              }
+            : null
+        }
         onClose={() => setDetailOpen(false)}
       />
     </div>
   );
 }
 
-function MerchantAssociationPill() {
+function MerchantAssociationPill({ storeName }: { storeName: string }) {
   return (
     <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-3 py-1.5 text-xs text-[#737B74] shadow-sm">
       <span className="flex size-7 items-center justify-center rounded-full bg-[#F0FDF4] text-[#16A34A]">
         <Store className="size-3.5" aria-hidden />
       </span>
-      Working with {MOCK_MERCHANT_NAME}
+      Working with {storeName}
     </div>
   );
 }

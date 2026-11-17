@@ -5,8 +5,6 @@ import type {
   RecentDeliveryActivity,
 } from "../types/dashboard";
 
-export const MOCK_MERCHANT_NAME = "Fresh Mart";
-
 export const MOCK_PERFORMANCE: PerformanceSnapshot = {
   todayDeliveries: 12,
   completed: 8,
@@ -16,10 +14,10 @@ export const MOCK_PERFORMANCE: PerformanceSnapshot = {
 
 export const MOCK_ACTIVE_DELIVERY: ActiveDelivery = {
   id: "GB10245",
-  merchantName: "Fresh Mart",
+  merchantName: "Your store",
   customerName: "Anjali",
   customerPhone: "+91 9876543210",
-  pickup: "Fresh Mart, Kozhikode",
+  pickup: "Store pickup, Kozhikode",
   dropoff: "Mavoor Road, Kozhikode",
   distanceKm: 3.2,
   etaMinutes: 20,
@@ -30,7 +28,7 @@ export const MOCK_NEW_DELIVERIES: NewDeliveryRequest[] = [
   {
     id: "GB10246",
     customerName: "Suresh",
-    pickup: "Fresh Mart, Kozhikode",
+    pickup: "Store pickup, Kozhikode",
     dropoff: "Palayam, Kozhikode",
     distanceKm: 2.4,
     earningsInr: 25,
@@ -38,7 +36,7 @@ export const MOCK_NEW_DELIVERIES: NewDeliveryRequest[] = [
   {
     id: "GB10247",
     customerName: "Meera",
-    pickup: "Fresh Mart, Kozhikode",
+    pickup: "Store pickup, Kozhikode",
     dropoff: "Feroke, Kozhikode",
     distanceKm: 4.1,
     earningsInr: 30,

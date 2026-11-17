@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/components/auth-provider";
 import { cn } from "@/lib/utils";
 
-import { MOCK_MERCHANT_NAME } from "../data/mock-dashboard";
 import { useDashboardUI } from "../context/dashboard-ui-context";
+import { useMerchantStoreLabel } from "../hooks/use-merchant-store-label";
 
 type DashboardHeaderProps = {
   variant?: "desktop" | "mobile";
@@ -16,6 +16,7 @@ type DashboardHeaderProps = {
 
 export function DashboardHeader({ variant = "desktop" }: DashboardHeaderProps) {
   const { partner } = useAuth();
+  const merchantStoreName = useMerchantStoreLabel();
   const {
     sidebarCollapsed,
     toggleSidebarCollapsed,
@@ -96,7 +97,7 @@ export function DashboardHeader({ variant = "desktop" }: DashboardHeaderProps) {
               Good morning, {displayName} 👋
             </p>
             <p className="text-xs text-[#737B74]">
-              Working with {MOCK_MERCHANT_NAME}
+              Working with {merchantStoreName}
             </p>
           </div>
         </div>
@@ -124,7 +125,7 @@ export function DashboardHeader({ variant = "desktop" }: DashboardHeaderProps) {
               <p className="text-sm font-medium text-[#17211B]">
                 {partner?.fullName ?? "Rahul Kumar"}
               </p>
-              <p className="text-xs text-[#737B74]">{MOCK_MERCHANT_NAME}</p>
+              <p className="text-xs text-[#737B74]">{merchantStoreName}</p>
             </div>
             <User className="size-4 text-[#737B74] sm:hidden" aria-hidden />
           </div>

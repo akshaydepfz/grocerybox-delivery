@@ -13,13 +13,14 @@ import {
   DASHBOARD_NAV_ITEMS,
   DASHBOARD_SIDEBAR_EXTRA,
 } from "../constants/nav-items";
-import { MOCK_MERCHANT_NAME } from "../data/mock-dashboard";
 import { useDashboardUI } from "../context/dashboard-ui-context";
+import { useMerchantStoreLabel } from "../hooks/use-merchant-store-label";
 
 export function DeliverySidebar() {
   const pathname = usePathname();
   const { partner, setPartner } = useAuth();
   const { sidebarCollapsed } = useDashboardUI();
+  const merchantStoreName = useMerchantStoreLabel();
 
   const displayName = partner?.fullName ?? "Rahul Kumar";
   const initial = displayName.charAt(0).toUpperCase();
@@ -71,7 +72,7 @@ export function DeliverySidebar() {
               <p className="truncate text-sm font-semibold text-[#17211B]">
                 {displayName}
               </p>
-              <p className="truncate text-xs text-[#737B74]">{MOCK_MERCHANT_NAME}</p>
+              <p className="truncate text-xs text-[#737B74]">{merchantStoreName}</p>
             </div>
           ) : null}
         </div>
