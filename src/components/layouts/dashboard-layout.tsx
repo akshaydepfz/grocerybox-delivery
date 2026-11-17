@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 
-import { DeliveryShell } from "@/features/dashboard/components/delivery-shell";
+import { DashboardShell } from "@/features/dashboard/components/dashboard-shell";
 
 type DashboardLayoutProps = {
   children: ReactNode;
 };
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  return <DeliveryShell>{children}</DeliveryShell>;
+  return <DashboardShell>{children}</DashboardShell>;
 }
