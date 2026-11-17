@@ -16,7 +16,7 @@ export function RecentActivity({ items }: RecentActivityProps) {
           <p className="text-xs text-[#737B74]">Latest completed runs</p>
         </div>
         <Link
-          href="/history"
+          href="/earnings"
           className="inline-flex items-center gap-0.5 rounded-lg px-2 py-1 text-sm font-medium text-[#16A34A] transition-colors hover:bg-[#F0FDF4] hover:text-[#15803D]"
         >
           View all

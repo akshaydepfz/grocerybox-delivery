@@ -1,6 +1,5 @@
 import {
   CircleHelp,
-  Clock,
   Home,
   IndianRupee,
   LogOut,
@@ -33,14 +32,6 @@ export const DASHBOARD_NAV_ITEMS: DashboardNavItem[] = [
     shortLabel: "Deliveries",
     href: "/deliveries",
     icon: Package,
-    mobileBottom: true,
-  },
-  {
-    id: "history",
-    label: "Delivery History",
-    shortLabel: "History",
-    href: "/history",
-    icon: Clock,
     mobileBottom: true,
   },
   {

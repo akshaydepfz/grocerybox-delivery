@@ -5,7 +5,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/features/auth/components/auth-provider";
 import { ApiError } from "@/lib/api/types";
 
+import type { EarningsPeriod } from "../types/earnings";
 import type { DeliveryCompleteOrderInput, DeliveryOrderStep } from "../types/order";
+import { fetchDeliveryEarnings } from "../services/delivery-earnings-service";
 import {
   completeDeliveryOrder,
   fetchDeliveryOrder,
@@ -15,6 +17,7 @@ import {
 
 const deliveryOrdersKey = ["delivery", "orders"] as const;
 const deliveryPerformanceKey = ["delivery", "performance"] as const;
+const deliveryEarningsKey = ["delivery", "earnings"] as const;
 
 export function useDeliveryApiEnabled(): boolean {
   const { isAuthReady, partner } = useAuth();
@@ -67,6 +70,15 @@ export function useDeliveryPerformanceSummary() {
   });
 }
 
+export function useDeliveryEarnings(period: EarningsPeriod) {
+  const enabled = useDeliveryApiEnabled();
+  return useQuery({
+    queryKey: [...deliveryEarningsKey, period],
+    queryFn: () => fetchDeliveryEarnings({ period, limit: 50 }),
+    enabled,
+  });
+}
+
 export function useCompleteDeliveryOrder() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -81,6 +93,7 @@ export function useCompleteDeliveryOrder() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: deliveryOrdersKey }),
         queryClient.invalidateQueries({ queryKey: deliveryPerformanceKey }),
+        queryClient.invalidateQueries({ queryKey: deliveryEarningsKey }),
       ]);
     },
   });

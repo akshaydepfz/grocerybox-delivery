@@ -1,18 +1,5 @@
-import type { Metadata } from "next";
-import { Clock } from "lucide-react";
-
-import { DashboardPlaceholderPage } from "@/features/dashboard/components/dashboard-placeholder-page";
-
-export const metadata: Metadata = {
-  title: "Delivery History",
-};
+import { redirect } from "next/navigation";
 
 export default function HistoryPage() {
-  return (
-    <DashboardPlaceholderPage
-      title="Delivery History"
-      description="Review completed deliveries, timestamps, and commissions."
-      icon={Clock}
-    />
-  );
+  redirect("/earnings");
 }

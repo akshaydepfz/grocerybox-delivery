@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
-import { IndianRupee } from "lucide-react";
 
-import { DashboardPlaceholderPage } from "@/features/dashboard/components/dashboard-placeholder-page";
+import { EarningsScreen } from "@/features/dashboard/components/earnings-screen";
 
 export const metadata: Metadata = {
   title: "Earnings",
 };
 
 export default function EarningsPage() {
-  return (
-    <DashboardPlaceholderPage
-      title="Earnings"
-      description="View daily payouts, commissions, and performance summaries."
-      icon={IndianRupee}
-    />
-  );
+  return <EarningsScreen />;
 }
